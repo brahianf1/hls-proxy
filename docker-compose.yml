@@ -6,9 +6,6 @@ services:
     container_name: hls-proxy-service
     ports:
       - "8000:8000"
-    volumes:
-      # In development, you might want to mount the data directory
-      # - ./data:/app/data
     env_file:
       - ./.env
     restart: unless-stopped
