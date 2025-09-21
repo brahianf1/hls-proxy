@@ -1,33 +1,32 @@
-# ---- Base Stage ----
-FROM node:22-alpine AS base
-WORKDIR /app
-
-# ---- Dependencies Stage ----
-FROM base AS dependencies
-COPY package.json package-lock.json ./
-RUN npm install --production
-
 # ---- Builder Stage ----
-FROM base AS builder
-COPY --from=dependencies /app/node_modules ./node_modules
+# This stage installs all dependencies, including devDependencies,
+# to build the TypeScript source code.
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
 COPY . .
 RUN npm run build
 
 # ---- Production Stage ----
-FROM base AS production
+# This stage creates the final, lean production image.
+FROM node:22-alpine AS production
 ENV NODE_ENV=production
+WORKDIR /app
 
 # Create a non-root user for security
 RUN addgroup -S -g 1001 nodejs
 RUN adduser -S -u 1001 -G nodejs hls-proxy
+
+# Copy package files and install ONLY production dependencies
+COPY package.json package-lock.json ./
+RUN npm install --production
+
+# Copy the built application from the builder stage and set correct permissions
+COPY --from=builder --chown=hls-proxy:nodejs /app/dist ./dist
+
+# Switch to the non-root user
 USER hls-proxy
-
-# Copy production dependencies
-COPY --from=dependencies /app/node_modules ./node_modules
-
-# Copy application code and built files
-COPY --from=builder /app/dist ./dist
-COPY package.json ./
 
 EXPOSE 8000
 
