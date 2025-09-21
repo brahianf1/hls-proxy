@@ -1,0 +1,39 @@
+{
+  "name": "hls-proxy",
+  "version": "1.0.0",
+  "description": "HLS proxy service",
+  "main": "dist/server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/server/index.js",
+    "dev": "tsx watch --env-file=.env src/server/index.ts",
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "keywords": [
+    "hls",
+    "proxy",
+    "video",
+    "streaming"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "tsx": "^4.15.6",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.27.0",
+    "fastify-type-provider-zod": "^1.2.0",
+    "m3u8-parser": "^7.2.0",
+    "pino": "^8.20.0",
+    "pino-http": "^9.0.0",
+    "pino-pretty": "^11.2.1",
+    "prom-client": "^15.1.2",
+    "zod": "^3.23.8"
+  }
+}

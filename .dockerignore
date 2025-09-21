@@ -1,0 +1,22 @@
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Git
+.git
+.gitignore
+
+# Node
+node_modules
+npm-debug.log
+
+# Build output
+dist
+
+# Development
+.env
+
+# IDEs and editors
+.vscode/
+.idea/
