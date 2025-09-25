@@ -1,0 +1,9 @@
+# docker-compose.override.yml (Development Override)
+version: '3.8'
+
+services:
+  hls-proxy:
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env.development

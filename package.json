@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/server/index.js",
-    "dev": "tsx watch --env-file=.env src/server/index.ts",
+    "dev": "tsx watch --env-file=.env.development src/server/index.ts",
     "build": "tsc",
     "test": "vitest"
   },
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",
+    "@supabase/supabase-js": "^2.57.4",
     "dotenv": "^16.4.5",
     "fastify": "^4.27.0",
     "fastify-type-provider-zod": "^1.2.0",

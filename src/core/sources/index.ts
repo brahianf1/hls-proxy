@@ -1,35 +1,28 @@
-import { promises as fs } from 'fs';
-import { env } from '../../config/env.js';
+import { findSourceByKey } from './sources.repository.js';
 import { logger } from '../observability/logger.js';
 
-let sourceMap: Map<string, string> = new Map();
+/**
+ * This function is the bridge between the playback route and the data layer.
+ * It fetches a source by its ID from the database.
+ * 
+ * @param sourceId The key of the source to retrieve (e.g., 'source-123').
+ * @returns The source URL if found and active, otherwise undefined.
+ */
+export async function getOriginalUrl(sourceId: string): Promise<string | undefined> {
+  logger.debug({ sourceId }, 'Attempting to get original URL for source ID');
 
-export async function loadSources() {
-  if (sourceMap.size > 0) return;
+  const source = await findSourceByKey(sourceId);
 
-  if (env.SOURCE_MAP_JSON) {
-    logger.info('Loading sources from SOURCE_MAP_JSON environment variable.');
-    try {
-      const sources = JSON.parse(env.SOURCE_MAP_JSON);
-      sourceMap = new Map(Object.entries(sources));
-    } catch (error) {
-      logger.error('Failed to parse SOURCE_MAP_JSON', error);
-      throw error; // Re-throw to be caught by bootstrap
-    }
-  } else if (env.SOURCE_MAP_PATH) {
-    logger.info(`Loading sources from ${env.SOURCE_MAP_PATH}`);
-    try {
-      const fileContent = await fs.readFile(env.SOURCE_MAP_PATH, 'utf-8');
-      const sources = JSON.parse(fileContent);
-      sourceMap = new Map(Object.entries(sources));
-    } catch (error) {
-      logger.error(`Failed to load or parse source map file at ${env.SOURCE_MAP_PATH}`, error);
-      throw error; // Re-throw to be caught by bootstrap
-    }
+  if (!source) {
+    logger.warn({ sourceId }, 'Source ID not found in database');
+    return undefined;
   }
-  logger.info(`Loaded ${sourceMap.size} sources.`);
-}
 
-export function getOriginalUrl(sourceId: string): string | undefined {
-  return sourceMap.get(sourceId);
+  if (!source.is_active) {
+    logger.warn({ sourceId, key: source.key }, 'Source is currently disabled');
+    return undefined;
+  }
+
+  logger.info({ sourceId, url: source.source_url }, 'Successfully retrieved source URL');
+  return source.source_url;
 }
