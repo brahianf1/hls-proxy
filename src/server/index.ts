@@ -7,11 +7,9 @@ import { env } from '../config/env.js';
 import healthRoute from './routes/health.route.js';
 import metricsRoute from './routes/metrics.route.js';
 import { registerPlayRoute } from './routes/play.route.js';
-import { loadSources } from '../core/sources/index.js';
+import { registerSourcesRoutes } from './routes/sources.route.js';
 
 async function bootstrap() {
-  await loadSources();
-
   const server = Fastify({
     logger: logger,
   }).withTypeProvider<ZodTypeProvider>();
@@ -26,6 +24,7 @@ async function bootstrap() {
   await server.register(healthRoute);
   await server.register(metricsRoute);
   await server.register(registerPlayRoute);
+  await server.register(registerSourcesRoutes);
 
   try {
     await server.listen({ port: env.PORT, host: '0.0.0.0' });

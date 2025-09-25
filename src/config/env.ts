@@ -9,11 +9,9 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().transform((val) => val.split(',').map((s) => s.trim())),
   ACCEPT_LANGUAGE: z.string().default('en-US,en;q=0.8'),
   SESSION_TTL_S: z.coerce.number().default(900),
-  SOURCE_MAP_PATH: z.string().optional(),
-  SOURCE_MAP_JSON: z.string().optional(),
   APP_PUBLIC_URL: z.string().url().default('http://localhost:8000'),
-}).refine((data) => data.SOURCE_MAP_PATH || data.SOURCE_MAP_JSON, {
-  message: 'Either SOURCE_MAP_PATH or SOURCE_MAP_JSON must be provided.',
+  SUPABASE_URL: z.string().url(),
+  SUPABASE_SERVICE_KEY: z.string(),
 });
 
 const parsed = envSchema.safeParse(process.env);

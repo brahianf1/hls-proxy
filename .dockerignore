@@ -1,22 +1,37 @@
-# Docker
-Dockerfile
-.dockerignore
-docker-compose.yml
+# .dockerignore
 
-# Git
+# Ignorar archivos y carpetas relacionados con Git
 .git
 .gitignore
 
-# Node
+# Ignorar dependencias de Node.js, se instalan dentro del contenedor
 node_modules
-npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
 
-# Build output
-dist
-
-# Development
+# Ignorar todos los archivos de entorno que contienen secretos.
+# El Dockerfile no necesita acceso a estos; las variables se inyectan en tiempo de ejecución.
 .env
+.env.*
 
-# IDEs and editors
+# Ignorar archivos de Docker Compose, son para orquestación, no para el contenido de la imagen.
+docker-compose*.yml
+
+# Ignorar el propio Dockerfile y este archivo .dockerignore
+Dockerfile
+.dockerignore
+
+# Ignorar carpetas de configuración de IDEs
 .vscode/
 .idea/
+
+# Ignorar artefactos de build y test, se generan dentro del contenedor o no son necesarios.
+dist/
+coverage/
+*.tsbuildinfo
+
+# Ignorar archivos específicos del sistema operativo
+.DS_Store
+Thumbs.db
