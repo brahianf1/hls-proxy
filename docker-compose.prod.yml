@@ -1,11 +1,27 @@
-# docker-compose.prod.yml (Production Override)
 version: '3.8'
 
 services:
   hls-proxy:
+    build: .
+    container_name: hls-proxy-service
+    restart: unless-stopped
     ports:
       - "8000:8000"
-    env_file:
-      # IMPORTANTE: Este archivo .env.production no debe subirse a Git.
-      - ./.env.production
-    restart: unless-stopped
+    environment:
+      # --- Server ---
+      - PORT=${PORT}
+      - APP_PUBLIC_URL=${APP_PUBLIC_URL}
+      - TZ=${TZ}
+      # --- Supabase ---
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      # --- Security ---
+      - API_KEY=${API_KEY}
+      # --- CORS ---
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      # --- Resolver ---
+      - RESOLVER_BASE_URL=${RESOLVER_BASE_URL}
+      - RESOLVER_API_KEY=${RESOLVER_API_KEY}
+      # --- Session ---
+      - SESSION_TTL_S=${SESSION_TTL_S}
+      - ACCEPT_LANGUAGE=${ACCEPT_LANGUAGE}
