@@ -22,16 +22,41 @@ async function masterManifestHandler(request: FastifyRequest, reply: FastifyRepl
     }
 
     const manifestText = await upstreamResponse.text();
-    const rewrittenManifest = manifestText
-      .split('\n')
-      .map((line) => {
-        if (line.startsWith('#') || !line.trim()) {
-          return line;
-        }
-        const absoluteUrl = getAbsoluteUrl(line, session.masterUrl);
+    const lines = manifestText.split('\n');
+    
+    let rewriteNextLine = false;
+    const rewrittenLines = lines.map((line) => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) {
+        return line;
+      }
+    
+      if (trimmedLine.startsWith('#EXT-X-STREAM-INF')) {
+        rewriteNextLine = true;
+        return line;
+      }
+    
+      if (rewriteNextLine && !trimmedLine.startsWith('#')) {
+        rewriteNextLine = false;
+        const absoluteUrl = getAbsoluteUrl(trimmedLine, session.masterUrl);
         return `/hls/${sessionId}/media/${encodeURIComponent(absoluteUrl)}`;
-      })
-      .join('\n');
+      }
+      
+      if (trimmedLine.startsWith('#EXT-X-MEDIA')) {
+          const uriRegex = /URI="([^"]+)"/;
+          const uriMatch = trimmedLine.match(uriRegex);
+          if (uriMatch && uriMatch[1]) {
+              const uri = uriMatch[1];
+              const absoluteUrl = getAbsoluteUrl(uri, session.masterUrl);
+              const rewrittenUri = `/hls/${sessionId}/media/${encodeURIComponent(absoluteUrl)}`;
+              return trimmedLine.replace(uriRegex, `URI="${rewrittenUri}"`);
+          }
+      }
+    
+      return line;
+    });
+
+    const rewrittenManifest = rewrittenLines.join('\n');
     
     manifestRewriteCounter.inc({ sessionId, type: 'master' });
     logger.info({ sessionId }, 'Rewriting master manifest');
